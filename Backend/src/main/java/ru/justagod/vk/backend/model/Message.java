@@ -1,4 +1,4 @@
-package ru.justagod.vk.model;
+package ru.justagod.vk.backend.model;
 
 import java.time.Instant;
 

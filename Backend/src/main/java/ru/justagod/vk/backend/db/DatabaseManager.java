@@ -1,10 +1,10 @@
-package ru.justagod.vk.db;
+package ru.justagod.vk.backend.db;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.justagod.vk.model.Message;
-import ru.justagod.vk.model.User;
+import ru.justagod.vk.backend.model.Message;
+import ru.justagod.vk.backend.model.User;
 
 import java.sql.ResultSet;
 import java.util.UUID;

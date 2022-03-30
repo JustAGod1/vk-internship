@@ -1,11 +1,11 @@
-package ru.justagod.vk.servlet;
+package ru.justagod.vk.backend.servlet;
 
 import com.google.gson.stream.JsonReader;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ru.justagod.vk.Main;
+import ru.justagod.vk.backend.Main;
 import ru.justagod.vk.data.AuthRequest;
 
 import java.io.IOException;
