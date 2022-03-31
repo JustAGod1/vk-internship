@@ -94,6 +94,20 @@ public class DatabaseManager {
     }
 
     @Nullable
+    public User findUser(String username) {
+        @Language("SQLite") String sql = "SELECT uuid FROM %s WHERE username = ? LIMIT 1"
+                .formatted(USERS_TABLE);
+
+        return pool.mapPreparedStatement(sql, s -> {
+            s.setString(1, username);
+
+            ResultSet result = s.executeQuery();
+            if (!result.next()) return null;
+
+            return new User(UUID.fromString(result.getString(1)));
+        });
+    }
+    @Nullable
     public User findUser(String username, String passwordHash) {
         @Language("SQLite") String sql = "SELECT uuid FROM %s WHERE password_hash = ? and username = ? LIMIT 1"
                 .formatted(USERS_TABLE);
