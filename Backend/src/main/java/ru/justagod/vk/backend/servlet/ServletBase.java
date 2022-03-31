@@ -14,12 +14,9 @@ import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public abstract class ServletBase<Request, Response> extends HttpServlet {
 
-    private final ConcurrentHashMap<String, RequestsWindow> requestsTracker = new ConcurrentHashMap<>();
     private static final int PAYLOAD_LIMIT = 10 * 1024;
 
     private final Endpoint<Request, Response> endpoint;
@@ -28,13 +25,8 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
     public ServletBase(Endpoint<Request, Response> endpoint, DatabaseManager database) {
         this.endpoint = endpoint;
         this.database = database;
-        cleanUpLoop();
     }
 
-    private synchronized void cleanUpLoop() {
-        requestsTracker.values().removeIf(RequestsWindow::update);
-        Main.executor.schedule(this::cleanUpLoop, 1, TimeUnit.MINUTES);
-    }
 
     @Override
     protected synchronized final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

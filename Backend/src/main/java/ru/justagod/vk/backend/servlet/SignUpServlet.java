@@ -11,7 +11,7 @@ import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
 
-public class SignUpServlet extends ServletBase<SignUpRequest, Session> {
+public class SignUpServlet extends ServletBase<UserPasswordRequest, Session> {
 
     private static final BackendResponse<Session> ALREADY_EXISTS
             = BackendResponse.error(BackendError.USERNAME_ALREADY_EXISTS);
@@ -22,7 +22,7 @@ public class SignUpServlet extends ServletBase<SignUpRequest, Session> {
 
 
     @Override
-    protected BackendResponse<Session> handle(HttpServletRequest req, SignUpRequest request, HttpServletResponse resp) throws IOException {
+    protected BackendResponse<Session> handle(HttpServletRequest req, UserPasswordRequest request, HttpServletResponse resp) throws IOException {
         if (request.username() == null || request.password() == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return BackendResponse.badRequest();

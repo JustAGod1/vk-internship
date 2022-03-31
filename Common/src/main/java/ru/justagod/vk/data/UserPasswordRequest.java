@@ -1,14 +1,10 @@
 package ru.justagod.vk.data;
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.Objects;
-
-public final class SignUpRequest {
+public final class UserPasswordRequest {
     private String username;
     private String password;
 
-    public SignUpRequest(
+    public UserPasswordRequest(
             String username,
             String password // Not hash
     ) {

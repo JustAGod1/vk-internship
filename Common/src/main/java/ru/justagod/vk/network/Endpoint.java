@@ -5,8 +5,10 @@ import ru.justagod.vk.data.*;
 
 public class Endpoint<Request, Response> {
 
-    public static final Endpoint<SignUpRequest, Session> SIGN_UP_REQUEST_ENDPOINT
-            = new Endpoint<>("signup", SignUpRequest.class, Session.class);
+    public static final Endpoint<UserPasswordRequest, Session> SIGN_UP_REQUEST_ENDPOINT
+            = new Endpoint<>("signup", UserPasswordRequest.class, Session.class);
+    public static final Endpoint<UserPasswordRequest, Session> SIGN_IN_REQUEST_ENDPOINT
+            = new Endpoint<>("signin", UserPasswordRequest.class, Session.class);
 
     public final String name;
     public final Class<Request> requestClass;

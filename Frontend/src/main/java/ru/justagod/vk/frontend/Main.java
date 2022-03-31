@@ -2,7 +2,7 @@ package ru.justagod.vk.frontend;
 
 import com.google.gson.Gson;
 import ru.justagod.vk.data.GsonHolder;
-import ru.justagod.vk.frontend.gui.signup.SignUpForm;
+import ru.justagod.vk.frontend.gui.UltraForm;
 import ru.justagod.vk.frontend.http.HttpClient;
 
 import javax.swing.*;
@@ -18,7 +18,7 @@ public class Main {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
-        SignUpForm form = new SignUpForm();
+        UltraForm form = new UltraForm();
         form.setVisible(true);
     }
 }

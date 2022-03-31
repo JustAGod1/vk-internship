@@ -10,6 +10,7 @@ import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.dos.DosProtection;
+import ru.justagod.vk.backend.servlet.SignInServlet;
 import ru.justagod.vk.backend.servlet.SignUpServlet;
 import ru.justagod.vk.data.GsonHolder;
 import ru.justagod.vk.network.Endpoint;
@@ -40,6 +41,7 @@ public class Main {
         server.setHandler(handler);
 
         handler.addServlet(new ServletHolder(new SignUpServlet(database)), "/" + Endpoint.SIGN_UP_REQUEST_ENDPOINT.name);
+        handler.addServlet(new ServletHolder(new SignInServlet(database)), "/" + Endpoint.SIGN_IN_REQUEST_ENDPOINT.name);
 
         return server;
     }

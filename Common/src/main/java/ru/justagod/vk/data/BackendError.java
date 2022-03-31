@@ -10,6 +10,7 @@ public final class BackendError {
     public static final int BAD_REQUEST = 0;
     public static final int CHALLENGE_REQUIRED = 1;
     public static final int USERNAME_ALREADY_EXISTS = 2;
+    public static final int WRONG_USERNAME_OR_PASSWORD = 3;
 
 
     private static final Map<Integer, String> codeNames = new HashMap<>();
