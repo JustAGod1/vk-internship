@@ -3,33 +3,42 @@ package ru.justagod.vk.backend.servlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.justagod.vk.backend.Main;
+import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.db.PasswordsManager;
 import ru.justagod.vk.backend.model.User;
-import ru.justagod.vk.data.SignUpRequest;
+import ru.justagod.vk.data.*;
+import ru.justagod.vk.network.Endpoint;
 
-public class SignUpServlet extends ServletBase<SignUpRequest> {
+import java.io.IOException;
 
-    public SignUpServlet() {
-        super(SignUpRequest.class);
+public class SignUpServlet extends ServletBase<SignUpRequest, Session> {
+
+    private static final BackendResponse<Session> ALREADY_EXISTS
+            = BackendResponse.error(BackendError.USERNAME_ALREADY_EXISTS);
+
+    public SignUpServlet(DatabaseManager database) {
+        super(Endpoint.SIGN_UP_REQUEST_ENDPOINT, database);
     }
 
 
     @Override
-    protected void handle(HttpServletRequest req, SignUpRequest request, HttpServletResponse resp) {
-        if (request.firstname() == null || request.surname() == null ||
-                request.username() == null || request.password() == null) {
+    protected BackendResponse<Session> handle(HttpServletRequest req, SignUpRequest request, HttpServletResponse resp) throws IOException {
+        if (request.username() == null || request.password() == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            return BackendResponse.badRequest();
         }
         if (Main.database.findUser(request.username()) != null) {
             resp.setStatus(409); // Conflict
-            return;
+            return ALREADY_EXISTS;
         }
 
-        Main.database.addUser(
-                request.firstname(), request.surname(),
+        User user = Main.database.addUser(
                 PasswordsManager.hashed(request.password()),
                 request.username()
         );
+
+        Session session = Main.sessions.updateUserSession(user);
+
+        return BackendResponse.success(session);
     }
 }

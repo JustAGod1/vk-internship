@@ -7,6 +7,9 @@ import ru.justagod.vk.backend.model.Message;
 import ru.justagod.vk.backend.model.User;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class DatabaseManager {
@@ -16,16 +19,16 @@ public class DatabaseManager {
 
     // Actually everything is written in a such way that we can replace sqlite with any other much more decent
     // database but for the sake of easy start of the application I use sqlite here
-    private static final String DATABASE_URL = "jdbc:sqlite:database.sqlite";
+    private static final String DATABASE_URL_PATTERN = "jdbc:sqlite:";
 
     private final ConnectionPool pool;
 
-    public static DatabaseManager create() {
-        return new DatabaseManager();
+    public static DatabaseManager create(String file) {
+        return new DatabaseManager(file);
     }
 
-    private DatabaseManager() {
-        pool = ConnectionPool.create(DATABASE_URL);
+    private DatabaseManager(String file) {
+        pool = ConnectionPool.create(DATABASE_URL_PATTERN + file);
         initializeTables();
     }
 
@@ -38,8 +41,6 @@ public class DatabaseManager {
                     "CREATE TABLE " + USERS_TABLE + "(\n" +
                             "    id integer not null primary key autoincrement ,\n" +
                             "    uuid VARCHAR(128)," +
-                            "    firstname VARCHAR(256),\n" +
-                            "    surname VARCHAR(256),\n" +
                             "    password_hash VARCHAR(40),\n" +
                             "    username VARCHAR(128)\n" +
                             ");\n" +
@@ -51,6 +52,7 @@ public class DatabaseManager {
             @Language("SQLite") String chatHistoryCreation =
                     "CREATE TABLE " + CHAT_HISTORY_TABLE + "(\n" +
                     "    id integer primary key autoincrement ,\n" +
+                    "    uuid VARCHAR(128)," +
                     "    sender_id VARCHAR(128) not null,\n" +
                     "    receiver_id VARCHAR(128) not null,\n" +
                     "    \n" +
@@ -66,28 +68,57 @@ public class DatabaseManager {
     }
 
     public void addMessage(Message message) {
-        @Language("SQLite") String sql = "INSERT INTO %s (sender_id, receiver_id, content) VALUES (?, ?, ?)"
+        @Language("SQLite") String sql = "INSERT INTO %s (sender_id, receiver_id, content, uuid, sent_at) VALUES (?, ?, ?, ?, ?)"
                 .formatted(CHAT_HISTORY_TABLE);
         pool.withPreparedStatement(sql, s -> {
             s.setString(1, message.sender().id().toString());
             s.setString(2, message.receiver().id().toString());
             s.setString(3, message.content());
+            s.setString(4, message.id().toString());
+            s.setTimestamp(5, Timestamp.from(message.sentAt()));
+        });
+    }
+
+    public List<Message> readMessages(long offset, User first, User second) {
+        @Language("SQLite") String sql = "SELECT uuid, sent_at, content, sender_id, receiver_id FROM %s WHERE (receiver_id = ? AND sender_id = ?) OR (receiver_id = ? AND sender_id = ?) ORDER BY sent_at DESC LIMIT 100 OFFSET %d"
+                .formatted(CHAT_HISTORY_TABLE, offset);
+
+        return pool.mapPreparedStatement(sql, s -> {
+            List<Message> result = new ArrayList<>();
+            s.setString(1, second.id().toString());
+            s.setString(2, first.id().toString());
+            s.setString(3, first.id().toString());
+            s.setString(4, second.id().toString());
+
+            ResultSet queryResult = s.executeQuery();
+
+            while (queryResult.next()) {
+                Message message = new Message(
+                        UUID.fromString(queryResult.getString("uuid")),
+                        new User(UUID.fromString(queryResult.getString("sender_id"))),
+                        new User(UUID.fromString(queryResult.getString("receiver_id"))),
+                        queryResult.getTimestamp("sent_at").toInstant(),
+                        queryResult.getString("content")
+                );
+
+                result.add(message);
+            }
+
+            return result;
         });
     }
 
     @NotNull
-    public User addUser(String firstname, String surname, String passwordHash, String username) {
+    public User addUser(String passwordHash, String username) {
         User user = new User(UUID.randomUUID());
 
-        @Language("SQLite") String sql = "INSERT INTO %s (uuid, firstname, surname, password_hash, username) VALUES (?, ?, ?, ?, ?)"
+        @Language("SQLite") String sql = "INSERT INTO %s (uuid, password_hash, username) VALUES (?, ?, ?)"
                 .formatted(USERS_TABLE);
 
         pool.withPreparedStatement(sql, s -> {
             s.setString(1, user.id().toString());
-            s.setString(2, firstname);
-            s.setString(3, surname);
-            s.setString(4, passwordHash);
-            s.setString(5, username);
+            s.setString(2, passwordHash);
+            s.setString(3, username);
         });
 
         return user;
