@@ -1,6 +1,6 @@
 package ru.justagod.vk.data;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -44,6 +44,37 @@ public final class BackendResponse<T> {
 
     public @Nullable T payload() {
         return payload;
+    }
+
+    public String toJson(Gson gson) {
+        return gson.toJson(this);
+    }
+
+    public static <T> BackendResponse<T> fromJson(Gson gson, String json, Class<T> responseClass) throws JsonParseException {
+        JsonElement element = JsonParser.parseString(json);
+        if (!element.isJsonObject()) throw new JsonSyntaxException("Given json is not an object");
+        JsonObject object = element.getAsJsonObject();
+
+        BackendResponse<T> result = new BackendResponse<>(
+                parsePayload(gson, object.get("error"), BackendError.class),
+                parsePayload(gson, object.get("payload"), responseClass)
+        );
+
+        if (result.error == null && result.payload == null) {
+            throw new JsonSyntaxException("Either result or payload must not be null");
+        }
+        if (result.error != null && result.payload != null) {
+            throw new JsonSyntaxException("Either result or payload must not be null");
+        }
+
+        return result;
+    }
+
+    private static <T> T parsePayload(Gson gson, JsonElement element, Class<T> payloadClass) {
+        if (element == null) return null;
+        if (element.isJsonNull()) return null;
+        if (!element.isJsonObject()) throw new JsonSyntaxException("payload is not an object");
+        return gson.fromJson(element.getAsJsonObject(), payloadClass);
     }
 
     @Override

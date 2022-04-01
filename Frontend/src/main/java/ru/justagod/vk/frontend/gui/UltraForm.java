@@ -131,9 +131,9 @@ public class UltraForm extends JFrame {
 
         if (!response.success()) {
             session = null;
-            setError(response.error().toString());
+            setError(response.response().error().toString());
         } else {
-            session = response.response();
+            session = response.response().payload();
         }
         switchAuthorizedView();
     }
@@ -149,7 +149,7 @@ public class UltraForm extends JFrame {
         ServerResponse<Void> response =
                 failable(() -> client.sendRequest(Endpoint.SOLVE_CHALLENGE_REQUEST_ENDPOINT, answer));
         if (response == null) return;
-        if (checkError(response) && response.error().kind() != BackendError.CHALLENGE_IS_NOT_REQUIRED) return;
+        if (checkError(response) && response.response().error().kind() != BackendError.CHALLENGE_IS_NOT_REQUIRED) return;
 
         challengePane.setVisible(false);
     }
@@ -162,13 +162,13 @@ public class UltraForm extends JFrame {
     private boolean checkError(ServerResponse<?> response) {
         if (response == null) return true;
         if (!response.success()) {
-            if (response.error().kind() == BackendError.FORBIDDEN) {
+            if (response.response().error().kind() == BackendError.FORBIDDEN) {
                 session = null;
                 switchAuthorizedView();
-            } else if (response.error().kind() == BackendError.CHALLENGE_REQUIRED) {
-                setUpChallengeRequest(response.error().payload());
+            } else if (response.response().error().kind() == BackendError.CHALLENGE_REQUIRED) {
+                setUpChallengeRequest(response.response().error().payload());
             } else {
-                setError(response.error().toString());
+                setError(response.response().error().toString());
             }
             return true;
         }
@@ -186,7 +186,7 @@ public class UltraForm extends JFrame {
         );
         if (checkError(response)) return;
 
-        UserName[] data = response.response().users().toArray(UserName[]::new);
+        UserName[] data = response.response().payload().users().toArray(UserName[]::new);
         friendsList.setListData(data);
 
 
@@ -206,7 +206,7 @@ public class UltraForm extends JFrame {
         if (response == null) return;
         if (checkError(response)) return;
 
-        UserName[] data = response.response().users().toArray(UserName[]::new);
+        UserName[] data = response.response().payload().users().toArray(UserName[]::new);
         usersList.setListData(data);
 
 

@@ -31,7 +31,7 @@ public class Main {
 
     private static int serverPort() {
         int result = 8888;
-        String override = System.getenv("ru.justagod.vk.client.server_url");
+        String override = System.getenv("ru.justagod.vk.server.port");
         if (override != null) {
             try {
                 result = Integer.parseInt(override);

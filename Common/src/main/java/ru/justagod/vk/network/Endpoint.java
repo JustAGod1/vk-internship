@@ -19,6 +19,8 @@ public class Endpoint<Request, Response> {
             = new Endpoint<>("remove_friend", AuthorizedUserRequest.class, Void.class);
     public static final Endpoint<Integer, Void> SOLVE_CHALLENGE_REQUEST_ENDPOINT
             = new Endpoint<>("challenge", Integer.class, Void.class);
+    public static final Endpoint<Integer, Void> SEND_MESSAGE_REQUEST_ENDPOINT
+            = new Endpoint<>("send_message", Integer.class, Void.class);
 
     public final String name;
     public final Class<Request> requestClass;
@@ -38,29 +40,21 @@ public class Endpoint<Request, Response> {
         }
     }
 
-    public Response parseResponse(Gson gson, String payload) throws ParsingException {
+    public BackendResponse<Response> parseResponse(Gson gson, String payload) throws ParsingException {
         try {
-            return gson.fromJson(payload, responseClass);
+            return BackendResponse.fromJson(gson, payload, responseClass);
         } catch (JsonParseException e) {
             throw new ParsingException(e);
         }
     }
 
-    public BackendError parseError(Gson gson, String payload) throws ParsingException {
-        try {
-            return gson.fromJson(payload, BackendError.class);
-        } catch (JsonParseException e) {
-            throw new ParsingException(e);
-        }
-    }
 
     public String writeRequest(Gson gson, Request request) {
         return gson.toJson(request);
     }
 
     public String writeResponse(Gson gson, BackendResponse<Response> response) {
-        if (response.error() != null) return gson.toJson(response.error());
-        return gson.toJson(response.payload());
+        return response.toJson(gson);
     }
 
     public static class ParsingException extends Exception {

@@ -7,6 +7,10 @@ import java.util.Objects;
 
 public final class BackendError {
 
+    public static final int PROTOCOL_ERROR = -8;
+    public static final int BAD_COOKIE = -7;
+    public static final int QUEUE_OVERFLOW = -6;
+    public static final int BUFFER_OVERRUN = -5;
     public static final int WRONG_CHALLENGE_ANSWER = -4;
     public static final int CHALLENGE_IS_NOT_REQUIRED = -3;
     public static final int GENERIC_ERROR = -1;

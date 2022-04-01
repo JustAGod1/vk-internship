@@ -2,6 +2,7 @@ package ru.justagod.vk.frontend.http;
 
 import com.google.gson.Gson;
 import ru.justagod.vk.data.BackendError;
+import ru.justagod.vk.data.BackendResponse;
 import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
@@ -44,11 +45,7 @@ public final class HttpClient {
             String response = new String(input.readAllBytes(), StandardCharsets.UTF_8);
 
             try {
-                if (code < 200 || code >= 300) {
-                    return ServerResponse.err(code, endpoint.parseError(gson, response));
-                } else {
-                    return ServerResponse.success(code, endpoint.parseResponse(gson, response));
-                }
+                return new ServerResponse<>(endpoint.parseResponse(gson, response), code);
             } catch (Endpoint.ParsingException e) {
                 throw new RuntimeException(e);
             }
