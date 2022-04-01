@@ -10,7 +10,14 @@ import javax.swing.*;
 public class Main {
 
     public static final Gson gson = GsonHolder.gson;
-    public static final HttpClient client = new HttpClient(gson, "http://localhost:8888");
+
+    private static String serverUrl() {
+        String result = "http://localhost:8888";
+        String override = System.getenv("ru.justagod.vk.client.server_url");
+        if (override != null) result = override;
+        return result;
+    }
+
 
     public static void main(String[] args) {
         try {
@@ -18,7 +25,8 @@ public class Main {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
-        UltraForm form = new UltraForm();
+        HttpClient client = new HttpClient(gson, serverUrl());
+        UltraForm form = new UltraForm(client);
         form.setVisible(true);
     }
 }

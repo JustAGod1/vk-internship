@@ -7,13 +7,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Random;
 
 public class PasswordsManager {
 
     public static final byte[] SALT = new byte[16];
 
     static {
-        new SecureRandom(new byte[]{7, 7, 7}).nextBytes(SALT);
+        new Random(777).nextBytes(SALT);
     }
 
     public static String hashed(String password) {

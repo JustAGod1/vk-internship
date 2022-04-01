@@ -2,8 +2,8 @@ package ru.justagod.vk.backend.db;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.justagod.vk.backend.model.Message;
-import ru.justagod.vk.backend.model.User;
+import ru.justagod.vk.data.Message;
+import ru.justagod.vk.data.User;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,6 +1,7 @@
 package ru.justagod.vk.frontend.http;
 
 import com.google.gson.Gson;
+import ru.justagod.vk.data.BackendError;
 import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
@@ -32,6 +33,9 @@ public final class HttpClient {
             connection.getOutputStream().flush();
             connection.getOutputStream().close();
             int code = connection.getResponseCode();
+
+            if (code == 429)
+                return ServerResponse.err(code, new BackendError(BackendError.TOO_MANY_REQUESTS, null));
 
             InputStream input;
             if (code < 200 || code >= 300) {

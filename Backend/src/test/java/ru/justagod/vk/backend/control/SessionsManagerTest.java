@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import ru.justagod.vk.backend.db.DatabaseManager;
-import ru.justagod.vk.backend.model.User;
+import ru.justagod.vk.data.User;
 import ru.justagod.vk.data.Session;
 
 import java.io.IOException;

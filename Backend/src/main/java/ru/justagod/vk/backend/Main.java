@@ -10,11 +10,11 @@ import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.dos.DosProtection;
-import ru.justagod.vk.backend.servlet.SignInServlet;
-import ru.justagod.vk.backend.servlet.SignUpServlet;
+import ru.justagod.vk.backend.servlet.*;
 import ru.justagod.vk.data.GsonHolder;
 import ru.justagod.vk.network.Endpoint;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -29,19 +29,38 @@ public class Main {
         makeServer().start();
     }
 
+    private static int serverPort() {
+        int result = 8888;
+        String override = System.getenv("ru.justagod.vk.client.server_url");
+        if (override != null) {
+            try {
+                result = Integer.parseInt(override);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
     private static Server makeServer() {
         Server server = new Server(new ExecutorThreadPool(5));
         ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory());
 
-        connector.setPort(8888);
+        connector.setPort(serverPort());
 
         server.addConnector(connector);
 
         ServletContextHandler handler = new ServletContextHandler();
         server.setHandler(handler);
 
-        handler.addServlet(new ServletHolder(new SignUpServlet(database)), "/" + Endpoint.SIGN_UP_REQUEST_ENDPOINT.name);
-        handler.addServlet(new ServletHolder(new SignInServlet(database)), "/" + Endpoint.SIGN_IN_REQUEST_ENDPOINT.name);
+        List<ServletBase<?, ?>> servlets = List.of(
+                new SignUpServlet(database),
+                new SignInServlet(database),
+                new FriendsListServlet(database),
+                new UsersServlet(database)
+        );
+        for (ServletBase<?, ?> servlet : servlets) {
+            handler.addServlet(new ServletHolder(servlet), "/" + servlet.getEndpoint().name);
+        }
 
         return server;
     }

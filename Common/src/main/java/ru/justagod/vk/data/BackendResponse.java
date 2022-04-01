@@ -9,7 +9,7 @@ public final class BackendResponse<T> {
     private @Nullable BackendError error;
     private @Nullable T payload;
 
-    public BackendResponse(
+    private BackendResponse(
             @Nullable
                     BackendError error,
             @Nullable
@@ -21,6 +21,9 @@ public final class BackendResponse<T> {
 
     public static <T> BackendResponse<T> badRequest() {
         return BackendResponse.error(new BackendError(BackendError.BAD_REQUEST, null));
+    }
+    public static <T> BackendResponse<T> forbidden() {
+        return BackendResponse.error(new BackendError(BackendError.FORBIDDEN, null));
     }
 
     public static <T> BackendResponse<T> success(T payload) {

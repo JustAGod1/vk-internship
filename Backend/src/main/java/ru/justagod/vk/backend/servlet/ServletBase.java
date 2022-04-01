@@ -27,6 +27,9 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
         this.database = database;
     }
 
+    public Endpoint<Request, Response> getEndpoint() {
+        return endpoint;
+    }
 
     @Override
     protected synchronized final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

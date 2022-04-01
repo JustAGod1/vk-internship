@@ -11,7 +11,7 @@ abstract class UserState {
 
     public static final Duration TRACKING_DURATION = Duration.of(1, ChronoUnit.MINUTES);
     public static final int MAX_REQUESTS = 10;
-    public static final Duration BAN_DURATION = Duration.of(3, ChronoUnit.MINUTES);
+    public static final Duration BAN_DURATION = Duration.of(1, ChronoUnit.MINUTES);
 
     static UserState initial() {
         return new Empty();

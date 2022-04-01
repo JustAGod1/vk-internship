@@ -2,8 +2,7 @@ package ru.justagod.vk.backend.control;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.justagod.vk.backend.Main;
-import ru.justagod.vk.backend.model.User;
+import ru.justagod.vk.data.User;
 import ru.justagod.vk.data.Session;
 
 import java.time.Duration;

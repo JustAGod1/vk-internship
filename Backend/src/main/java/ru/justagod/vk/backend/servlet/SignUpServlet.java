@@ -5,15 +5,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import ru.justagod.vk.backend.Main;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.db.PasswordsManager;
-import ru.justagod.vk.backend.model.User;
+import ru.justagod.vk.data.User;
 import ru.justagod.vk.data.*;
 import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
 
-public class SignUpServlet extends ServletBase<UserPasswordRequest, Session> {
+public class SignUpServlet extends ServletBase<UserPasswordRequest, SessionResponse> {
 
-    private static final BackendResponse<Session> ALREADY_EXISTS
+    private static final BackendResponse<SessionResponse> ALREADY_EXISTS
             = BackendResponse.error(BackendError.USERNAME_ALREADY_EXISTS);
 
     public SignUpServlet(DatabaseManager database) {
@@ -22,7 +22,7 @@ public class SignUpServlet extends ServletBase<UserPasswordRequest, Session> {
 
 
     @Override
-    protected BackendResponse<Session> handle(HttpServletRequest req, UserPasswordRequest request, HttpServletResponse resp) throws IOException {
+    protected BackendResponse<SessionResponse> handle(HttpServletRequest req, UserPasswordRequest request, HttpServletResponse resp) throws IOException {
         if (request.username() == null || request.password() == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return BackendResponse.badRequest();
@@ -39,6 +39,6 @@ public class SignUpServlet extends ServletBase<UserPasswordRequest, Session> {
 
         Session session = Main.sessions.updateUserSession(user);
 
-        return BackendResponse.success(session);
+        return BackendResponse.success(new SessionResponse(session, user));
     }
 }
