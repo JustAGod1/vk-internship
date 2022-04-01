@@ -56,7 +56,10 @@ public class Main {
                 new SignUpServlet(database),
                 new SignInServlet(database),
                 new FriendsListServlet(database),
-                new UsersServlet(database)
+                new UsersServlet(database),
+                new AddFriendServlet(database),
+                new RemoveFriendServlet(database),
+                new ChallengeServlet(database)
         );
         for (ServletBase<?, ?> servlet : servlets) {
             handler.addServlet(new ServletHolder(servlet), "/" + servlet.getEndpoint().name);

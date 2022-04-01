@@ -1,5 +1,7 @@
 package ru.justagod.vk.backend.dos;
 
+import org.jetbrains.annotations.Nullable;
+
 public final class UserStateController {
     private UserState currentState = UserState.initial();
 
@@ -10,6 +12,9 @@ public final class UserStateController {
     }
 
     private UserState getState() {
+        if (currentState == null) {
+            currentState = UserState.initial();
+        }
         currentState = currentState.update();
         if (currentState == null) {
             currentState = UserState.initial();
@@ -21,8 +26,14 @@ public final class UserStateController {
         currentState = getState().requestReceived();
     }
 
-    public boolean isBanned() {
-        return isEmpty() || currentState.isBanned();
+    public void solveChallenge() {
+        currentState = getState().solveChallenge();
+    }
+
+    @Nullable
+    public ClientChallenge getChallenge() {
+        if (isEmpty()) return null;
+        return currentState.challenge();
     }
 
 }

@@ -1,5 +1,6 @@
 package ru.justagod.vk.backend.dos;
 
+import org.jetbrains.annotations.Nullable;
 import ru.justagod.vk.backend.Main;
 
 import java.util.Map;
@@ -28,11 +29,17 @@ public final class DosProtection {
         return states.computeIfAbsent(ip, a -> new UserStateController());
     }
 
-    public boolean onRequest(String ip) {
+    @Nullable
+    public ClientChallenge onRequest(String ip) {
         UserStateController controller = getController(ip);
         controller.requestReceived();
 
-        return controller.isBanned();
+        return controller.getChallenge();
+    }
+
+    public void solveChallenge(String ip) {
+        UserStateController controller = getController(ip);
+        controller.solveChallenge();
     }
 
 

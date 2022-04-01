@@ -13,6 +13,12 @@ public class Endpoint<Request, Response> {
             = new Endpoint<>("friends", AuthorizedRequest.class, UsersListResponse.class);
     public static final Endpoint<AuthorizedRequest, UsersListResponse> USERS_REQUEST_ENDPOINT
             = new Endpoint<>("users", AuthorizedRequest.class, UsersListResponse.class);
+    public static final Endpoint<AuthorizedUserRequest, Void> ADD_FRIEND_REQUEST_ENDPOINT
+            = new Endpoint<>("add_friend", AuthorizedUserRequest.class, Void.class);
+    public static final Endpoint<AuthorizedUserRequest, Void> REMOVE_FRIEND_REQUEST_ENDPOINT
+            = new Endpoint<>("remove_friend", AuthorizedUserRequest.class, Void.class);
+    public static final Endpoint<Integer, Void> SOLVE_CHALLENGE_REQUEST_ENDPOINT
+            = new Endpoint<>("challenge", Integer.class, Void.class);
 
     public final String name;
     public final Class<Request> requestClass;

@@ -6,13 +6,17 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class BackendError {
-    public static final int TOO_MANY_REQUESTS = -2;
+
+    public static final int WRONG_CHALLENGE_ANSWER = -4;
+    public static final int CHALLENGE_IS_NOT_REQUIRED = -3;
     public static final int GENERIC_ERROR = -1;
     public static final int BAD_REQUEST = 0;
     public static final int CHALLENGE_REQUIRED = 1;
     public static final int USERNAME_ALREADY_EXISTS = 2;
     public static final int WRONG_USERNAME_OR_PASSWORD = 3;
     public static final int FORBIDDEN = 4;
+    public static final int FRIEND_ALREADY_ADDED = 5;
+    public static final int FRIEND_ALREADY_REMOVED = 6;
 
 
     private static final Map<Integer, String> codeNames = new HashMap<>();

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.justagod.vk.backend.Main;
 import ru.justagod.vk.backend.db.DatabaseManager;
+import ru.justagod.vk.backend.dos.ClientChallenge;
 import ru.justagod.vk.backend.dos.RequestsWindow;
 import ru.justagod.vk.data.BackendError;
 import ru.justagod.vk.data.BackendResponse;
@@ -21,10 +22,15 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
 
     private final Endpoint<Request, Response> endpoint;
     protected final DatabaseManager database;
+    private final boolean skipProtection;
 
     public ServletBase(Endpoint<Request, Response> endpoint, DatabaseManager database) {
+        this(endpoint, database, false);
+    }
+    public ServletBase(Endpoint<Request, Response> endpoint, DatabaseManager database, boolean skipProtection) {
         this.endpoint = endpoint;
         this.database = database;
+        this.skipProtection = skipProtection;
     }
 
     public Endpoint<Request, Response> getEndpoint() {
@@ -34,10 +40,17 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
     @Override
     protected synchronized final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String ip = req.getRemoteAddr();
-            if (Main.protection.onRequest(ip)) {
-                resp.setStatus(429); // Too many requests
-                return;
+            if (!skipProtection) {
+                String ip = req.getRemoteAddr();
+                ClientChallenge challenge = Main.protection.onRequest(ip);
+                if (challenge != null) {
+                    resp.setStatus(429); // Too many requests
+                    BackendResponse<Response> response = BackendResponse.error(
+                            new BackendError(BackendError.CHALLENGE_REQUIRED, challenge.getChallenge())
+                    );
+                    resp.getOutputStream().write(endpoint.writeResponse(Main.gson, response).getBytes(StandardCharsets.UTF_8));
+                    return;
+                }
             }
 
             byte[] content = req.getInputStream().readNBytes(PAYLOAD_LIMIT);

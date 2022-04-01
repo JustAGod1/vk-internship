@@ -89,7 +89,9 @@ public class DatabaseManager {
                 .formatted(FRIENDS_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
-            s.execute();
+            s.setString(1, user.id().toString());
+            s.setString(2, friend.id().toString());
+            s.executeUpdate();
             return s.getUpdateCount() > 0;
         });
     }
@@ -102,7 +104,7 @@ public class DatabaseManager {
             s.setString(1, user.id().toString());
             s.setString(2, friend.id().toString());
 
-            s.execute();
+            s.executeUpdate();
             return s.getUpdateCount() > 0;
         });
     }

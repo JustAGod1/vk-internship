@@ -1,7 +1,7 @@
 package ru.justagod.vk.backend.dos;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.justagod.vk.data.User;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -11,7 +11,6 @@ abstract class UserState {
 
     public static final Duration TRACKING_DURATION = Duration.of(1, ChronoUnit.MINUTES);
     public static final int MAX_REQUESTS = 10;
-    public static final Duration BAN_DURATION = Duration.of(1, ChronoUnit.MINUTES);
 
     static UserState initial() {
         return new Empty();
@@ -22,30 +21,33 @@ abstract class UserState {
     @Nullable
     abstract UserState update();
 
-    boolean isBanned() {
-        return false;
+    @Nullable
+    ClientChallenge challenge() {
+        return null;
     }
 
     UserState requestReceived() {
         return this;
     }
 
+    public UserState solveChallenge() {
+        return this;
+    }
+
     private static class Empty extends UserState {
 
         private final Instant lifetimeLimit;
-        private final int bansCount;
 
         Empty() {
-            this(Instant.now().plus(TRACKING_DURATION), 0);
+            this(Instant.now().plus(TRACKING_DURATION));
         }
-        Empty(Instant lifetimeLimit, int bansCount) {
+        Empty(Instant lifetimeLimit) {
             this.lifetimeLimit = lifetimeLimit;
-            this.bansCount = bansCount;
         }
 
         @Override
         UserState requestReceived() {
-            UserState result = new TrackingRequests(bansCount);
+            UserState result = new TrackingRequests();
             return result.requestReceived();
         }
 
@@ -58,20 +60,14 @@ abstract class UserState {
 
     private static class TrackingRequests extends UserState {
 
-        private final int bansCount;
         private final RequestsWindow window = new RequestsWindow(TRACKING_DURATION);
 
         private Instant lifetimeLimit;
 
         TrackingRequests() {
-            this(0);
+            this(Instant.now().plus(TRACKING_DURATION));
         }
-
-        TrackingRequests(int bansCount) {
-            this(bansCount, Instant.now().plus(TRACKING_DURATION));
-        }
-        TrackingRequests(int bansCount, Instant lifetimeLimit) {
-            this.bansCount = bansCount;
+        TrackingRequests(Instant lifetimeLimit) {
             this.lifetimeLimit = lifetimeLimit;
         }
 
@@ -79,7 +75,7 @@ abstract class UserState {
         @Nullable UserState update() {
             window.update();
             if (Instant.now().compareTo(lifetimeLimit) >= 0)
-                return new Empty(lifetimeLimit.plus(TRACKING_DURATION), bansCount).update();
+                return new Empty(lifetimeLimit.plus(TRACKING_DURATION)).update();
             return this;
         }
 
@@ -89,31 +85,37 @@ abstract class UserState {
             window.addRequest();
             window.update();
             if (window.getRequestsCount() > MAX_REQUESTS) {
-                return new Banned(bansCount).update();
+                return new ChallengeRequired().update();
             }
             return this;
         }
     }
 
-    private static class Banned extends UserState {
+    private static class ChallengeRequired extends UserState {
         private final Instant until;
-        private final int bansCount;
 
-        Banned(int bansCount) {
-            until = Instant.now().plus(BAN_DURATION.multipliedBy(bansCount + 1));
-            this.bansCount = bansCount;
+        private final ClientChallenge challenge;
+
+        ChallengeRequired() {
+            challenge = ClientChallenge.generate();
+            until = Instant.now().plus(TRACKING_DURATION);
         }
 
         @Override
         @Nullable UserState update() {
             if (until.compareTo(Instant.now()) <= 0)
-                return new Empty(until.plus(TRACKING_DURATION), bansCount+1).update();
+                return new Empty(until.plus(TRACKING_DURATION)).update();
             return this;
         }
 
         @Override
-        boolean isBanned() {
-            return true;
+        @Nullable ClientChallenge challenge() {
+            return challenge;
+        }
+
+        @Override
+        public UserState solveChallenge() {
+            return new Empty(until.plus(TRACKING_DURATION)).update();
         }
     }
 

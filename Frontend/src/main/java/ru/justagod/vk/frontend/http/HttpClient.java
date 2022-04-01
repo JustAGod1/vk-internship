@@ -34,9 +34,6 @@ public final class HttpClient {
             connection.getOutputStream().close();
             int code = connection.getResponseCode();
 
-            if (code == 429)
-                return ServerResponse.err(code, new BackendError(BackendError.TOO_MANY_REQUESTS, null));
-
             InputStream input;
             if (code < 200 || code >= 300) {
                 input = connection.getErrorStream();
