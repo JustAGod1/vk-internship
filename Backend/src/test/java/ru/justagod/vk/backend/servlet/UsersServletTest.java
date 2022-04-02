@@ -43,7 +43,8 @@ class UsersServletTest extends ServletBaseTest {
     }
 
     @Test
-    void badRequest() throws IOException {
+    void badRequest() throws Exception {
+        mockDatabaseReadOnly();
         HttpClient client = connect();
 
         var response = client.sendRequest(
@@ -60,7 +61,8 @@ class UsersServletTest extends ServletBaseTest {
     }
 
     @Test
-    void unauthorized() throws IOException {
+    void unauthorized() throws Exception {
+        mockDatabaseReadOnly();
         HttpClient client = connect();
 
         var response = client.sendRequest(

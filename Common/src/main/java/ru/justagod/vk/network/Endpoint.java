@@ -19,8 +19,10 @@ public class Endpoint<Request, Response> {
             = new Endpoint<>("remove_friend", AuthorizedUserRequest.class, Void.class);
     public static final Endpoint<Integer, Void> SOLVE_CHALLENGE_REQUEST_ENDPOINT
             = new Endpoint<>("challenge", Integer.class, Void.class);
-    public static final Endpoint<Integer, Void> SEND_MESSAGE_REQUEST_ENDPOINT
-            = new Endpoint<>("send_message", Integer.class, Void.class);
+    public static final Endpoint<MessagesRequest, Messages> GET_MESSAGES_REQUEST_ENDPOINT
+            = new Endpoint<>("get_message", MessagesRequest.class, Messages.class);
+    public static final Endpoint<SendMessageRequest, Void> SEND_MESSAGE_REQUEST_ENDPOINT
+            = new Endpoint<>("send_message", SendMessageRequest.class, Void.class);
 
     public final String name;
     public final Class<Request> requestClass;

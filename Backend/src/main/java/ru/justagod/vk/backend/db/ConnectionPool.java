@@ -51,7 +51,7 @@ public class ConnectionPool {
             }
         });
     }
-    public <T> T mapPreparedStatement(@Language("SQLite") String sql, @NotNull SQLFunction<PreparedStatement, T> block) {
+    public <T> T mapPreparedStatement(String sql, @NotNull SQLFunction<PreparedStatement, T> block) {
         return mapConnection(connection -> {
             try (PreparedStatement s = connection.prepareStatement(sql)) {
                 return block.apply(s);

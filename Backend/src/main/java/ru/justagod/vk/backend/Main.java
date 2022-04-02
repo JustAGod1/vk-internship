@@ -57,7 +57,9 @@ public class Main {
                 new UsersServlet(database, protection, sessions),
                 new AddFriendServlet(database, protection, sessions),
                 new RemoveFriendServlet(database, protection, sessions),
-                new ChallengeServlet(database, protection, sessions)
+                new ChallengeServlet(database, protection, sessions),
+                new GetMessagesServlet(database, protection, sessions),
+                new SendMessageServlet(database, protection, sessions)
         );
         for (ServletBase<?, ?> servlet : servlets) {
             handler.addServlet(new ServletHolder(servlet), "/" + servlet.getEndpoint().name);

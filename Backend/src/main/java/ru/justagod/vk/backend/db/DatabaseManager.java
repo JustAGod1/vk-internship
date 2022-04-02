@@ -10,6 +10,7 @@ import ru.justagod.vk.data.UserName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -111,7 +112,7 @@ public class DatabaseManager {
     }
 
     public List<UserName> requestFriends(User user) {
-        @Language("SQLite") String sql = "SELECT friend, username FROM %1$s INNER JOIN %2$s ON  %1$s.friend = %2$s.uuid WHERE %1$s.user = ? "
+        String sql = "SELECT friend, username FROM %1$s INNER JOIN %2$s ON  %1$s.friend = %2$s.uuid WHERE %1$s.user = ? "
                 .formatted(FRIENDS_TABLE, USERS_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
@@ -142,16 +143,17 @@ public class DatabaseManager {
         });
     }
 
-    public List<Message> readMessages(long offset, User first, User second) {
-        @Language("SQLite") String sql = "SELECT uuid, sent_at, content, sender_id, receiver_id FROM %s WHERE (receiver_id = ? AND sender_id = ?) OR (receiver_id = ? AND sender_id = ?) ORDER BY sent_at DESC LIMIT 100 OFFSET %d"
-                .formatted(CHAT_HISTORY_TABLE, offset);
+    public List<Message> readMessages(Instant before, User first, User second) {
+        @Language("SQLite") String sql = "SELECT uuid, sent_at, content, sender_id, receiver_id FROM %s WHERE sent_at <= ? AND ((receiver_id = ? AND sender_id = ?) OR (receiver_id = ? AND sender_id = ?)) ORDER BY sent_at DESC LIMIT 100"
+                .formatted(CHAT_HISTORY_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
             List<Message> result = new ArrayList<>();
-            s.setString(1, second.id().toString());
-            s.setString(2, first.id().toString());
+            s.setTimestamp(1, Timestamp.from(before));
+            s.setString(2, second.id().toString());
             s.setString(3, first.id().toString());
-            s.setString(4, second.id().toString());
+            s.setString(4, first.id().toString());
+            s.setString(5, second.id().toString());
 
             ResultSet queryResult = s.executeQuery();
 

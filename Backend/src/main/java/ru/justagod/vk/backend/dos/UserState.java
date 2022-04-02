@@ -7,7 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-abstract class UserState {
+public abstract class UserState {
 
     public static final Duration TRACKING_DURATION = Duration.of(1, ChronoUnit.MINUTES);
     public static final int MAX_REQUESTS = 10;

@@ -1,17 +1,15 @@
 package ru.justagod.vk.backend.servlet;
 
-import com.google.gson.Gson;
 import org.assertj.core.util.Files;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.dos.DosProtection;
@@ -22,10 +20,10 @@ import ru.justagod.vk.frontend.http.HttpClient;
 import ru.justagod.vk.frontend.http.ServerResponse;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,22 +40,25 @@ class ServletBaseTest {
     protected final <T> BackendError assertError(ServerResponse<T> response) {
         return assertError(response.response());
     }
+
     protected final <T> BackendError assertError(BackendResponse<T> response) {
-        assertFalse(response.isSuccess(),response.toString());
+        assertFalse(response.isSuccess(), response.toString());
         return response.error();
     }
 
     protected final <T> T assertSuccess(ServerResponse<T> response) {
         return assertSuccess(response.response());
     }
+
     protected final <T> T assertSuccess(BackendResponse<T> response) {
-        assertTrue(response.isSuccess(), response.toString());
+        assertNull(response.error());
         return response.payload();
     }
 
     protected final void assertUnauthorized(ServerResponse<?> response) {
         assertUnauthorized(response.response());
     }
+
     protected final void assertUnauthorized(BackendResponse<?> response) {
         assertErrorKind(BackendError.FORBIDDEN, response);
     }
@@ -65,6 +66,7 @@ class ServletBaseTest {
     protected final void assertBadRequest(ServerResponse<?> response) {
         assertBadRequest(response.response());
     }
+
     protected final void assertBadRequest(BackendResponse<?> response) {
         assertErrorKind(BackendError.BAD_REQUEST, response);
     }
@@ -72,15 +74,37 @@ class ServletBaseTest {
     protected final void assertErrorKind(int errorKind, ServerResponse<?> response) {
         assertErrorKind(errorKind, response.response());
     }
+
     protected final void assertErrorKind(int errorKind, BackendResponse<?> response) {
         assertEquals(BackendError.codeName(errorKind), BackendError.codeName(assertError(response).kind()));
 
     }
 
+    protected void mockDatabaseReadOnly() throws Exception {
+        mockDatabase(this::makeMockDatabaseReadOnly);
+    }
+    protected DatabaseManager makeMockDatabaseReadOnly() {
+        DatabaseManager spy = Mockito.spy(DatabaseManager.create(databaseFile));
+        Mockito.doThrow(AssertionError.class).when(spy).addFriend(Mockito.any(), Mockito.any());
+        Mockito.doThrow(AssertionError.class).when(spy).removeFriend(Mockito.any(), Mockito.any());
+        Mockito.doThrow(AssertionError.class).when(spy).addMessage(Mockito.any());
+        Mockito.doThrow(AssertionError.class).when(spy).addUser(Mockito.any(), Mockito.any());
+
+        return spy;
+    }
+
+    protected void mockDatabase(Supplier<DatabaseManager> supplier) throws Exception {
+        destroy();
+        prepare(supplier.get());
+    }
+
     @BeforeEach
     protected void prepare() throws Exception {
+        prepare(DatabaseManager.create(databaseFile));
+    }
+    protected void prepare(DatabaseManager database) throws Exception {
         executor = Executors.newScheduledThreadPool(5);
-        database = DatabaseManager.create(databaseFile);
+        this.database = database;
         protection = DosProtection.create(executor);
         sessions = SessionsManager.create(executor);
         server = makeServer();

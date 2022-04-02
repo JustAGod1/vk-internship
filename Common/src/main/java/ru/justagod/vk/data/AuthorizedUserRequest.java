@@ -2,14 +2,14 @@ package ru.justagod.vk.data;
 
 public class AuthorizedUserRequest extends AuthorizedRequest{
 
-    private User friend;
+    private User user;
 
-    public AuthorizedUserRequest(String session, User friend) {
+    public AuthorizedUserRequest(String session, User user) {
         super(session);
-        this.friend = friend;
+        this.user = user;
     }
 
-    public User friend() {
-        return friend;
+    public User user() {
+        return user;
     }
 }

@@ -2,7 +2,9 @@ package ru.justagod.vk.backend.db;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.justagod.vk.backend.EnhancedRandom;
 import ru.justagod.vk.data.Message;
+import ru.justagod.vk.data.Messages;
 import ru.justagod.vk.data.User;
 
 import java.io.IOException;
@@ -59,44 +61,44 @@ class DatabaseManagerTest {
         User ivan = manager.addUser("***", "ip");
         User sergey = manager.addUser("***", "sp");
 
-        Instant epoch = Instant.EPOCH;
-
         Random random = new Random(777);
 
         Stream<Message> messagesGenerator = IntStream
                 .generate(new AtomicInteger()::incrementAndGet)
-                .mapToObj((v) ->
-                Message.create(
-                        v % 2 == 0 ? ivan : sergey, v % 2 == 1 ? ivan : sergey,
-                        epoch.plusMillis(v * 2L),
-                        IntStream
-                                .range(0, random.nextInt(20))
-                                .mapToObj(a -> String.valueOf('a' + random.nextInt('z'-'a')))
-                                .collect(Collectors.joining(""))
-                        )
-                );
+                .mapToObj((v) -> EnhancedRandom.randomMessageAndDirection(ivan, sergey, random, 30, Instant.ofEpochSecond(v)));
 
         int count = random.nextInt(2000);
 
         List<Message> messages = messagesGenerator.limit(count).collect(Collectors.toList());
         Collections.reverse(messages);
 
+        TreeMap<Instant, Message> treeMap = new TreeMap<>();
+
         for (Message message : messages) {
+            treeMap.put(message.sentAt(), message);
             manager.addMessage(message);
         }
 
-        for (int i = 0; i < (messages.size() + 99) / 100; i++) {
-            List<Message> batch = new ArrayList<>();
+        int iterations = random.nextInt(300);
 
-            for (int j = 0; j < 100; j++) {
-                int idx = 100 * i + j;
-                if (idx >= messages.size()) break;
-                batch.add(messages.get(idx));
+        for (int i = 0; i < iterations; i++) {
+            Message pivot = messages.get(random.nextInt(messages.size()));
+
+            List<Message> actual = manager.readMessages(pivot.sentAt(), pivot.receiver(), pivot.sender());
+            List<Message> expected = new ArrayList<>();
+
+            while (pivot != null && expected.size() < 100) {
+                expected.add(pivot);
+                var entry = treeMap.lowerEntry(pivot.sentAt());
+                if (entry != null) {
+                    pivot = entry.getValue();
+                } else {
+                    pivot = null;
+                }
             }
 
-            List<Message> read = manager.readMessages(i * 100, ivan, sergey);
+            assertEquals(expected, actual);
 
-            assertEquals(batch, read);
         }
     }
     @Test
@@ -108,7 +110,7 @@ class DatabaseManagerTest {
         Message sent = Message.create(ivan, sergey, sentAt, "k".repeat(4096));
         manager.addMessage(sent);
 
-        Message received = manager.readMessages(0, ivan, sergey).get(0);
+        Message received = manager.readMessages(sentAt, ivan, sergey).get(0);
 
         assertEquals(sent, received);
     }

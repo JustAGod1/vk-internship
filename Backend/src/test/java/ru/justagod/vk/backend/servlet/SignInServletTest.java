@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SignInServletTest extends ServletBaseTest {
 
     @Test
-    void signIn() throws IOException {
+    void signIn() throws Exception {
         String username = "Ivan";
         String password = "***";
 
@@ -33,7 +33,8 @@ class SignInServletTest extends ServletBaseTest {
     }
 
     @Test
-    void badRequest() throws IOException {
+    void badRequest() throws Exception {
+        mockDatabaseReadOnly();
         String username = "Ivan";
         String password = "***";
 
@@ -62,7 +63,8 @@ class SignInServletTest extends ServletBaseTest {
     }
 
     @Test
-    void noMatch() throws IOException {
+    void noMatch() throws Exception {
+        mockDatabaseReadOnly();
         HttpClient client = connect();
 
         var response = client.sendRequest(

@@ -14,23 +14,13 @@ import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
 
-public class UsersServlet extends ServletBase<AuthorizedRequest, UsersListResponse> {
+public class UsersServlet extends AuthorizedServlet<AuthorizedRequest, UsersListResponse> {
     public UsersServlet(DatabaseManager database, DosProtection protection, SessionsManager sessions) {
         super(Endpoint.USERS_REQUEST_ENDPOINT, database, protection, sessions);
     }
 
     @Override
-    protected BackendResponse<UsersListResponse> handle(HttpServletRequest req, AuthorizedRequest request, HttpServletResponse resp) throws IOException {
-        if (request.session() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
-        User user = sessions.getSessionOwner(request.session());
-        if (user == null) {
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return BackendResponse.forbidden();
-        }
-
+    protected BackendResponse<UsersListResponse> handle(HttpServletRequest req, User user, AuthorizedRequest request, HttpServletResponse resp) {
         return BackendResponse.success(new UsersListResponse(database.getUsers()));
     }
 }

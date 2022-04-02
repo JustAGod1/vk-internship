@@ -27,7 +27,7 @@ class SignUpServletTest extends ServletBaseTest {
     }
 
     @Test
-    void newUser() throws IOException {
+    void newUser() throws Exception {
         String username = "ivan";
         String password = "***";
 
@@ -43,7 +43,7 @@ class SignUpServletTest extends ServletBaseTest {
     }
 
     @Test
-    void usernameCollision() throws IOException {
+    void usernameCollision() throws Exception {
         String username = "ivan";
         String password = "***";
 
@@ -56,7 +56,8 @@ class SignUpServletTest extends ServletBaseTest {
     }
 
     @Test
-    void badRequest() throws IOException {
+    void badRequest() throws Exception {
+        mockDatabaseReadOnly();
         String username = "ivan";
         String password = "***";
 
