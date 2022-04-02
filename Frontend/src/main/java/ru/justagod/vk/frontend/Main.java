@@ -15,10 +15,10 @@ public class Main {
     private static String serverUrl() {
         return EnvHelper.stringEnv("ru.justagod.vk.client.server_url", "http://localhost:8888");
     }
-    private static String pollAddress() {
+    public static String pollAddress() {
         return EnvHelper.stringEnv("ru.justagod.vk.client.poll.address", "localhost");
     }
-    private static int pollPort() {
+    public static int pollPort() {
         return EnvHelper.intEnv("ru.justagod.vk.client.poll.address", 9999);
     }
 

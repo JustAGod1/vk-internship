@@ -31,7 +31,7 @@ public class SendMessageServlet extends AuthorizedServlet<SendMessageRequest, Vo
         dispatch(LongPollCommunicationHandler.getConnection(user),message);
         dispatch(LongPollCommunicationHandler.getConnection(request.recipient()),message);
 
-        return null;
+        return BackendResponse.success(null);
     }
 
     private void dispatch(LongPollCommunicationHandler connection, Message message) {

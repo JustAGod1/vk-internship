@@ -33,10 +33,10 @@ public class Main {
         makeServer().start();
     }
 
-    private static int serverPort() {
+    public static int serverPort() {
         return intEnv("ru.justagod.vk.server.port", 8888);
     }
-    private static int longPollPort() {
+    public static int longPollPort() {
         return intEnv("ru.justagod.vk.server.poll.port", 9999);
     }
     private static Server makeServer() {
