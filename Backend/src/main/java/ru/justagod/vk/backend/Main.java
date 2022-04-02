@@ -10,6 +10,7 @@ import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.dos.DosProtection;
+import ru.justagod.vk.backend.poll.LongPollServer;
 import ru.justagod.vk.backend.servlet.*;
 import ru.justagod.vk.data.GsonHolder;
 import ru.justagod.vk.network.Endpoint;
@@ -18,28 +19,25 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static ru.justagod.vk.EnvHelper.intEnv;
+
 public class Main {
     public static final Gson gson = GsonHolder.gson;
     public static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
     public static final DatabaseManager database = DatabaseManager.create("database.sqlite");
     public static final SessionsManager sessions = SessionsManager.create(executor);
     public static final DosProtection protection = DosProtection.create(executor);
+    public static final LongPollServer longPoll = LongPollServer.start(executor, gson, sessions, longPollPort());
 
     public static void main(String[] args) throws Exception {
         makeServer().start();
     }
 
     private static int serverPort() {
-        int result = 8888;
-        String override = System.getenv("ru.justagod.vk.server.port");
-        if (override != null) {
-            try {
-                result = Integer.parseInt(override);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
+        return intEnv("ru.justagod.vk.server.port", 8888);
+    }
+    private static int longPollPort() {
+        return intEnv("ru.justagod.vk.server.poll.port", 9999);
     }
     private static Server makeServer() {
         Server server = new Server(new ExecutorThreadPool(5));

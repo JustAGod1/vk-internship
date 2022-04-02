@@ -1,6 +1,5 @@
 package ru.justagod.vk.backend.dos;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,24 +45,23 @@ class DosProtectionTest {
 
 
     @Test
-    void testBanProgress() {
+    void testChallengeSolution() {
         Instant currentTime = Instant.EPOCH;
         mockInstant(currentTime);
 
         String ip = "ip";
         DosProtection protection = DosProtection.create(executor);
 
-        for (int banTimes = 0; banTimes < 10; banTimes++) {
-            for (int i = 0; i < UserState.MAX_REQUESTS; i++) {
-                assertFalse(protection.onRequest(ip));
-            }
-            for (int i = 0; i <= banTimes; i++) {
-                assertTrue(protection.onRequest(ip));
-                currentTime = currentTime.plus(UserState.BAN_DURATION);
-                mockInstant(currentTime);
-            }
-
+        for (int i = 0; i < UserState.MAX_REQUESTS; i++) {
+            assertNull(protection.onRequest(ip));
         }
+
+        ClientChallenge challenge = protection.onRequest(ip);
+        assertNotNull(challenge);
+
+        protection.solveChallenge(ip);
+
+        assertNull(protection.onRequest(ip));
     }
 
     @Test
@@ -75,26 +73,15 @@ class DosProtectionTest {
         DosProtection protection = DosProtection.create(executor);
 
         for (int i = 0; i < UserState.MAX_REQUESTS; i++) {
-            assertFalse(protection.onRequest(ip));
+            assertNull(protection.onRequest(ip));
         }
 
-        assertTrue(protection.onRequest(ip));
-
-        currentTime = currentTime.plus(UserState.BAN_DURATION);
-        mockInstant(currentTime);
+        assertNotNull(protection.onRequest(ip));
 
         currentTime = currentTime.plus(UserState.TRACKING_DURATION);
         mockInstant(currentTime);
 
-        for (int i = 0; i < UserState.MAX_REQUESTS; i++) {
-            assertFalse(protection.onRequest(ip));
-        }
-
-        assertTrue(protection.onRequest(ip));
-
-        currentTime = currentTime.plus(UserState.BAN_DURATION);
-        mockInstant(currentTime);
-        assertFalse(protection.onRequest(ip));
+        assertNull(protection.onRequest(ip));
 
 
     }

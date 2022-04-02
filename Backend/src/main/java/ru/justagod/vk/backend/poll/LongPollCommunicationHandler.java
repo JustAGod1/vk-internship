@@ -23,13 +23,16 @@ public class LongPollCommunicationHandler extends LongPollConnectionHandlerBase<
     private final ConcurrentLinkedDeque<Message> events = new ConcurrentLinkedDeque<>();
 
     @Nullable
-    public static LongPollConnectionHandler getConnection(User user) {
+    public static LongPollCommunicationHandler getConnection(User user) {
         return connectedUsers.get(user);
     }
 
     protected LongPollCommunicationHandler(Gson gson, User user) {
         super(gson, Void.class);
-        connectedUsers.put(user, this);
+        LongPollCommunicationHandler before = connectedUsers.put(user, this);
+        if (before != null) {
+            before.connection.closeChannel(BackendError.CONNECTED_FROM_ANOTHER_LOCATION);
+        }
     }
 
     public void addEvent(Message message) {
@@ -53,7 +56,7 @@ public class LongPollCommunicationHandler extends LongPollConnectionHandlerBase<
         int l = events.size();
         List<Message> result = new ArrayList<>();
 
-        for (int i = 0; i <l; i++) {
+        for (int i = 0; i < l; i++) {
             Message message = events.poll();
             result.add(message);
         }

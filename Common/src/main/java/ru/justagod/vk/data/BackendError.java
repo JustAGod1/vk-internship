@@ -7,12 +7,14 @@ import java.util.Objects;
 
 public final class BackendError {
 
+    public static final int CONNECTED_FROM_ANOTHER_LOCATION = -9;
     public static final int PROTOCOL_ERROR = -8;
     public static final int BAD_COOKIE = -7;
     public static final int QUEUE_OVERFLOW = -6;
     public static final int BUFFER_OVERRUN = -5;
     public static final int WRONG_CHALLENGE_ANSWER = -4;
     public static final int CHALLENGE_IS_NOT_REQUIRED = -3;
+    public static final int TOO_MANY_REQUESTS = -3;
     public static final int GENERIC_ERROR = -1;
     public static final int BAD_REQUEST = 0;
     public static final int CHALLENGE_REQUIRED = 1;
@@ -67,5 +69,23 @@ public final class BackendError {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BackendError that = (BackendError) o;
+
+        if (kind != that.kind) return false;
+        return payload != null ? payload.equals(that.payload) : that.payload == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = kind;
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        return result;
     }
 }

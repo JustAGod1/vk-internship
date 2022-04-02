@@ -31,7 +31,7 @@ public class LongPollAuthorizationHandler extends LongPollConnectionHandlerBase<
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < 10; i++) {
-            sb.append((char) random.get().nextInt());
+            sb.append((char) ('a' + random.get().nextInt('z' - 'a')));
         }
 
         return sb.toString();
@@ -50,7 +50,6 @@ public class LongPollAuthorizationHandler extends LongPollConnectionHandlerBase<
             connection.closeChannel(BackendError.BAD_COOKIE);
             return;
         }
-        connection.sendMessage(BackendResponse.success(null));
         state = State.COOKIE_RECEIVED;
     }
 
@@ -70,9 +69,9 @@ public class LongPollAuthorizationHandler extends LongPollConnectionHandlerBase<
         switch (state) {
             case COOKIE_SENT -> handleCookie(s);
             case COOKIE_RECEIVED -> handleSession(s);
+            default -> connection.closeChannel(BackendError.PROTOCOL_ERROR);
         }
 
-        connection.closeChannel(BackendError.PROTOCOL_ERROR);
 
         return null;
     }

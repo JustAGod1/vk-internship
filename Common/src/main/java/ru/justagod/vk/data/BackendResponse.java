@@ -19,6 +19,10 @@ public final class BackendResponse<T> {
         this.payload = payload;
     }
 
+    public boolean isSuccess() {
+        return error == null;
+    }
+
     public static <T> BackendResponse<T> badRequest() {
         return BackendResponse.error(new BackendError(BackendError.BAD_REQUEST, null));
     }
@@ -60,9 +64,6 @@ public final class BackendResponse<T> {
                 parsePayload(gson, object.get("payload"), responseClass)
         );
 
-        if (result.error == null && result.payload == null) {
-            throw new JsonSyntaxException("Either result or payload must not be null");
-        }
         if (result.error != null && result.payload != null) {
             throw new JsonSyntaxException("Either result or payload must not be null");
         }
@@ -73,8 +74,7 @@ public final class BackendResponse<T> {
     private static <T> T parsePayload(Gson gson, JsonElement element, Class<T> payloadClass) {
         if (element == null) return null;
         if (element.isJsonNull()) return null;
-        if (!element.isJsonObject()) throw new JsonSyntaxException("payload is not an object");
-        return gson.fromJson(element.getAsJsonObject(), payloadClass);
+        return gson.fromJson(element, payloadClass);
     }
 
     @Override

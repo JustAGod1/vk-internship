@@ -8,6 +8,7 @@ import ru.justagod.vk.data.BackendResponse;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public abstract class LongPollConnectionHandlerBase<Input, Output> implements LongPollConnectionHandler {
 
@@ -29,12 +30,10 @@ public abstract class LongPollConnectionHandlerBase<Input, Output> implements Lo
     @Override
     public final void handle(@NotNull ByteBuffer payload) throws IOException {
          try {
-             String payloadString = payload.asCharBuffer().toString();
+             String payloadString = new String(payload.array(), StandardCharsets.UTF_8);
              Input input = gson.fromJson(payloadString, inputClass);
 
              Output output = handleRequest(input);
-
-             if (connection.loop())
 
              connection.sendMessage(BackendResponse.success(output));
          } catch (JsonParseException e) {

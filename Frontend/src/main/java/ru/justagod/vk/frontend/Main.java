@@ -1,6 +1,7 @@
 package ru.justagod.vk.frontend;
 
 import com.google.gson.Gson;
+import ru.justagod.vk.EnvHelper;
 import ru.justagod.vk.data.GsonHolder;
 import ru.justagod.vk.frontend.gui.UltraForm;
 import ru.justagod.vk.frontend.http.HttpClient;
@@ -12,10 +13,13 @@ public class Main {
     public static final Gson gson = GsonHolder.gson;
 
     private static String serverUrl() {
-        String result = "http://localhost:8888";
-        String override = System.getenv("ru.justagod.vk.client.server_url");
-        if (override != null) result = override;
-        return result;
+        return EnvHelper.stringEnv("ru.justagod.vk.client.server_url", "http://localhost:8888");
+    }
+    private static String pollAddress() {
+        return EnvHelper.stringEnv("ru.justagod.vk.client.poll.address", "localhost");
+    }
+    private static int pollPort() {
+        return EnvHelper.intEnv("ru.justagod.vk.client.poll.address", 9999);
     }
 
 
