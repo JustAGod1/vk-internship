@@ -1,49 +1,47 @@
-package ru.justagod.vk.backend;
+package ru.justagod.vk.backend.servlet;
 
-import com.google.gson.Gson;
+import org.assertj.core.util.Files;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
+import org.junit.jupiter.api.BeforeEach;
 import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.dos.DosProtection;
-import ru.justagod.vk.backend.poll.LongPollServer;
-import ru.justagod.vk.backend.servlet.*;
-import ru.justagod.vk.data.GsonHolder;
-import ru.justagod.vk.network.Endpoint;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static ru.justagod.vk.EnvHelper.intEnv;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Main {
-    public static final Gson gson = GsonHolder.gson;
-    public static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(3);
-    private static final DatabaseManager database = DatabaseManager.create("database.sqlite");
-    private static final SessionsManager sessions = SessionsManager.create(executor);
-    private static final DosProtection protection = DosProtection.create(executor);
-    public static final LongPollServer longPoll = LongPollServer.start(executor, gson, sessions, longPollPort());
+class ServletBaseTest {
 
-    public static void main(String[] args) throws Exception {
-        makeServer().start();
+    private static final String databaseFile = Files.newTemporaryFile().getAbsoluteFile().getAbsolutePath();
+
+    protected ScheduledExecutorService executor;
+    protected DatabaseManager database;
+    protected DosProtection protection;
+    protected SessionsManager sessions;
+
+    @BeforeEach
+    private void prepare() {
+        executor = Executors.newScheduledThreadPool(5);
+        database = DatabaseManager.create(databaseFile);
+        protection = DosProtection.create(executor);
+        sessions = SessionsManager.create(executor);
     }
 
-    private static int serverPort() {
-        return intEnv("ru.justagod.vk.server.port", 8888);
-    }
-    private static int longPollPort() {
-        return intEnv("ru.justagod.vk.server.poll.port", 9999);
-    }
-    private static Server makeServer() {
+    protected Server makeServer() {
         Server server = new Server(new ExecutorThreadPool(5));
         ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory());
 
-        connector.setPort(serverPort());
+        connector.setPort(0);
 
         server.addConnector(connector);
 
@@ -65,4 +63,5 @@ public class Main {
 
         return server;
     }
+
 }

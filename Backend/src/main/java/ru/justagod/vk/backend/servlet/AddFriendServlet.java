@@ -3,7 +3,9 @@ package ru.justagod.vk.backend.servlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.justagod.vk.backend.Main;
+import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
+import ru.justagod.vk.backend.dos.DosProtection;
 import ru.justagod.vk.data.AuthorizedUserRequest;
 import ru.justagod.vk.data.BackendError;
 import ru.justagod.vk.data.BackendResponse;
@@ -16,8 +18,8 @@ public class AddFriendServlet extends ServletBase<AuthorizedUserRequest, Void> {
 
     private static final BackendResponse<Void> response = BackendResponse.success(null);
 
-    public AddFriendServlet(DatabaseManager database) {
-        super(Endpoint.ADD_FRIEND_REQUEST_ENDPOINT, database);
+    public AddFriendServlet(DatabaseManager database, DosProtection protection, SessionsManager sessions) {
+        super(Endpoint.ADD_FRIEND_REQUEST_ENDPOINT, database, protection, sessions);
     }
 
     @Override
@@ -27,7 +29,7 @@ public class AddFriendServlet extends ServletBase<AuthorizedUserRequest, Void> {
             return BackendResponse.badRequest();
         }
 
-        User user = Main.sessions.getSessionOwner(request.session());
+        User user = sessions.getSessionOwner(request.session());
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return BackendResponse.forbidden();

@@ -3,8 +3,10 @@ package ru.justagod.vk.backend.servlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.justagod.vk.backend.Main;
+import ru.justagod.vk.backend.control.SessionsManager;
 import ru.justagod.vk.backend.db.DatabaseManager;
 import ru.justagod.vk.backend.db.PasswordsManager;
+import ru.justagod.vk.backend.dos.DosProtection;
 import ru.justagod.vk.data.User;
 import ru.justagod.vk.data.*;
 import ru.justagod.vk.network.Endpoint;
@@ -16,8 +18,8 @@ public class SignUpServlet extends ServletBase<UserPasswordRequest, SessionRespo
     private static final BackendResponse<SessionResponse> ALREADY_EXISTS
             = BackendResponse.error(BackendError.USERNAME_ALREADY_EXISTS);
 
-    public SignUpServlet(DatabaseManager database) {
-        super(Endpoint.SIGN_UP_REQUEST_ENDPOINT, database);
+    public SignUpServlet(DatabaseManager database, DosProtection protection, SessionsManager sessions) {
+        super(Endpoint.SIGN_UP_REQUEST_ENDPOINT, database, protection, sessions);
     }
 
 
@@ -27,17 +29,17 @@ public class SignUpServlet extends ServletBase<UserPasswordRequest, SessionRespo
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return BackendResponse.badRequest();
         }
-        if (Main.database.findUser(request.username()) != null) {
+        if (database.findUser(request.username()) != null) {
             resp.setStatus(409); // Conflict
             return ALREADY_EXISTS;
         }
 
-        User user = Main.database.addUser(
+        User user = database.addUser(
                 PasswordsManager.hashed(request.password()),
                 request.username()
         );
 
-        Session session = Main.sessions.updateUserSession(user);
+        Session session = sessions.updateUserSession(user);
 
         return BackendResponse.success(new SessionResponse(session, user));
     }
