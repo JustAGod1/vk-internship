@@ -19,7 +19,8 @@ public class GsonHolder {
 
         @Override
         public void write(JsonWriter out, Instant value) throws IOException {
-            out.value(value.toEpochMilli());
+            if (value == null) out.nullValue();
+            else out.value(value.toEpochMilli());
         }
 
         @Override
