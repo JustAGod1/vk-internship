@@ -32,7 +32,10 @@ class SignUpServletTest extends ServletBaseTest {
         String password = "***";
 
         HttpClient client = connect();
-        var response = client.sendRequest(Endpoint.SIGN_UP_REQUEST_ENDPOINT, new UserPasswordRequest(username, password));
+        var response = client.sendRequest(
+                Endpoint.SIGN_UP_REQUEST_ENDPOINT,
+                new UserPasswordRequest(username, password)
+        );
         SessionResponse session = assertSuccess(response.response());
         validateResponse(session);
 
