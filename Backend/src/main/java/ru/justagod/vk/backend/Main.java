@@ -15,11 +15,13 @@ import ru.justagod.vk.backend.servlet.*;
 import ru.justagod.vk.data.GsonHolder;
 import ru.justagod.vk.network.Endpoint;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static ru.justagod.vk.EnvHelper.intEnv;
+
 
 public class Main {
     public static final Gson gson = GsonHolder.gson;

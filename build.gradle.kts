@@ -1,4 +1,3 @@
-
 plugins {
     java
     application
@@ -11,16 +10,25 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation("ch.qos.logback:logback-classic:1.2.11")
-    implementation("com.google.code.gson:gson:2.9.0")
-    implementation("org.eclipse.jetty:jetty-servlet:11.0.8")
+allprojects {
+    tasks.withType<JavaCompile> {
+        targetCompatibility = "16"
+        sourceCompatibility = "16"
+    }
 }
 
+evaluationDependsOnChildren()
 tasks.test {
     useJUnitPlatform()
 }
 
 application {
     mainClass.set("MainKt")
+}
+
+tasks.create("runBackend") {
+    dependsOn += project(":Backend").tasks.findByName("runBackend")!!
+}
+tasks.create("runFrontend") {
+    dependsOn += project(":Frontend").tasks.findByName("runFrontend")!!
 }

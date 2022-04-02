@@ -31,5 +31,14 @@ tasks.test {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("ru.justagod.vk.backend.Main")
 }
+
+tasks.create("runBackend", JavaExec::class) {
+    group = "help"
+    classpath = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME).runtimeClasspath
+    this.workingDir = rootProject.file("run/").absoluteFile
+    mainClass.set("ru.justagod.vk.backend.Main")
+}
+
+rootProject.file("run").mkdirs()
