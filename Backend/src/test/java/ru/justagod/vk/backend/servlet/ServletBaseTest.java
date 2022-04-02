@@ -18,8 +18,10 @@ import ru.justagod.vk.data.BackendResponse;
 import ru.justagod.vk.data.GsonHolder;
 import ru.justagod.vk.frontend.http.HttpClient;
 import ru.justagod.vk.frontend.http.ServerResponse;
+import ru.justagod.vk.network.Endpoint;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,7 +29,7 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ServletBaseTest {
+public class ServletBaseTest {
 
     private static final String databaseFile = Files.newTemporaryFile().getAbsoluteFile().getAbsolutePath();
 
@@ -119,6 +121,18 @@ class ServletBaseTest {
         new File(databaseFile).delete();
     }
 
+    protected <Request, Response> ServerResponse<Response> challengeByPass(
+            HttpClient client,
+            Endpoint<Request, Response> endpoint,
+            Request request
+    ) throws IOException {
+        var response = client.sendRequest(endpoint, request);
+        if (!response.success() && response.response().error().kind() == BackendError.CHALLENGE_REQUIRED) {
+            protection.solveChallenge("127.0.0.1");
+            response = client.sendRequest(endpoint, request);
+        }
+        return response;
+    }
 
     protected HttpClient connect() {
         ServerConnector connector = (ServerConnector) server.getConnectors()[0];
