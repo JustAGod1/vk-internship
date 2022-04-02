@@ -18,12 +18,12 @@ public class GetMessagesServlet extends AuthorizedServlet<MessagesRequest, Messa
     }
 
     @Override
-    protected BackendResponse<Messages> handle(HttpServletRequest req, User user, MessagesRequest request, HttpServletResponse resp) {
-        if (request.user() == null || request.before() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
+    protected boolean verifyRequest(MessagesRequest request) {
+        return super.verifyRequest(request) && request.user() != null && request.before() != null;
+    }
 
+    @Override
+    protected BackendResponse<Messages> handle(HttpServletRequest req, User user, MessagesRequest request, HttpServletResponse resp) {
         List<Message> result = database.readMessages(request.before(), request.user(), user);
 
         return BackendResponse.success(new Messages(result));

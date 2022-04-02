@@ -69,14 +69,13 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
             try {
                 request = endpoint.parseRequest(Main.gson, contentString);
             } catch (Endpoint.ParsingException e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getOutputStream().write(endpoint.writeResponse(
-                        Main.gson,
-                        BackendResponse.badRequest()
-                ).getBytes(StandardCharsets.UTF_8));
+                sendBadRequest(resp);
                 return;
             }
-
+            if (!verifyRequest(request)) {
+                sendBadRequest(resp);
+                return;
+            }
             resp.setStatus(HttpServletResponse.SC_OK);
             BackendResponse<Response> response = handle(req, request, resp);
 
@@ -84,14 +83,24 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(500);
-            resp.getOutputStream().write(
-                    endpoint.writeResponse(
-                            Main.gson,
-                            BackendResponse.error(new BackendError(BackendError.GENERIC_ERROR, e.toString()))
-                    ).getBytes(StandardCharsets.UTF_8)
-            );
+            resp.getOutputStream().write(endpoint.writeResponse(
+                    Main.gson,
+                    BackendResponse.error(new BackendError(BackendError.GENERIC_ERROR, e.toString()))
+            ).getBytes(StandardCharsets.UTF_8));
 
         }
+    }
+
+    private void sendBadRequest(HttpServletResponse resp) throws IOException {
+        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        resp.getOutputStream().write(endpoint.writeResponse(
+                Main.gson,
+                BackendResponse.badRequest()
+        ).getBytes(StandardCharsets.UTF_8));
+    }
+
+    protected boolean verifyRequest(Request request) {
+        return true;
     }
 
     protected abstract BackendResponse<Response> handle(HttpServletRequest req, Request request, HttpServletResponse resp) throws IOException;

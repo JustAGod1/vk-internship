@@ -21,12 +21,12 @@ public class ChallengeServlet extends ServletBase<Integer, Void> {
     }
 
     @Override
-    protected BackendResponse<Void> handle(HttpServletRequest req, Integer answer, HttpServletResponse resp) throws IOException {
-        if (answer == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
+    protected boolean verifyRequest(Integer integer) {
+        return integer != null;
+    }
 
+    @Override
+    protected BackendResponse<Void> handle(HttpServletRequest req, Integer answer, HttpServletResponse resp) throws IOException {
         ClientChallenge challenge = protection.onRequest(req.getRemoteAddr());
         if (challenge == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

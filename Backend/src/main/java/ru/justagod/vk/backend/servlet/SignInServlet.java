@@ -18,11 +18,12 @@ public class SignInServlet extends ServletBase<UserPasswordRequest, SessionRespo
     }
 
     @Override
+    protected boolean verifyRequest(UserPasswordRequest request) {
+        return super.verifyRequest(request) && request.username() != null && request.password() != null;
+    }
+
+    @Override
     protected BackendResponse<SessionResponse> handle(HttpServletRequest req, UserPasswordRequest request, HttpServletResponse resp) throws IOException {
-        if (request.username() == null || request.password() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
         User user = database.findUser(request.username(), PasswordsManager.hashed(request.password()));
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);

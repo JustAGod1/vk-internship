@@ -17,12 +17,12 @@ public class SendMessageServlet extends AuthorizedServlet<SendMessageRequest, Vo
     }
 
     @Override
-    protected BackendResponse<Void> handle(HttpServletRequest req, User user, SendMessageRequest request, HttpServletResponse resp) {
-        if (request.payload() == null || request.recipient() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
+    protected boolean verifyRequest(SendMessageRequest request) {
+        return super.verifyRequest(request) && request.payload() != null && request.recipient() != null;
+    }
 
+    @Override
+    protected BackendResponse<Void> handle(HttpServletRequest req, User user, SendMessageRequest request, HttpServletResponse resp) {
         Message message = Message.create(
                 user, request.recipient(), Instant.now(), request.payload()
         );

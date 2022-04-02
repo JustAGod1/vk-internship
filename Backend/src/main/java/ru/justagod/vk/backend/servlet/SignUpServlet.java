@@ -22,13 +22,13 @@ public class SignUpServlet extends ServletBase<UserPasswordRequest, SessionRespo
         super(Endpoint.SIGN_UP_REQUEST_ENDPOINT, database, protection, sessions);
     }
 
+    @Override
+    protected boolean verifyRequest(UserPasswordRequest request) {
+        return super.verifyRequest(request) && request.username() != null && request.password() != null;
+    }
 
     @Override
     protected BackendResponse<SessionResponse> handle(HttpServletRequest req, UserPasswordRequest request, HttpServletResponse resp) throws IOException {
-        if (request.username() == null || request.password() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
         if (database.findUser(request.username()) != null) {
             resp.setStatus(409); // Conflict
             return ALREADY_EXISTS;

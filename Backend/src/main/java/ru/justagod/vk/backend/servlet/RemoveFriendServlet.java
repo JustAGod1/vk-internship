@@ -22,12 +22,12 @@ public class RemoveFriendServlet extends AuthorizedServlet<AuthorizedUserRequest
     }
 
     @Override
-    protected BackendResponse<Void> handle(HttpServletRequest req, User user, AuthorizedUserRequest request, HttpServletResponse resp) {
-        if (request.user() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
+    protected boolean verifyRequest(AuthorizedUserRequest request) {
+        return super.verifyRequest(request) && request.user() != null;
+    }
 
+    @Override
+    protected BackendResponse<Void> handle(HttpServletRequest req, User user, AuthorizedUserRequest request, HttpServletResponse resp) {
         if (database.removeFriend(user, request.user())) return response;
         else {
             resp.setStatus(409); // Conflict

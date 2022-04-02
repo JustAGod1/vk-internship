@@ -23,11 +23,12 @@ public abstract class AuthorizedServlet<Request extends AuthorizedRequest, Respo
     }
 
     @Override
+    protected boolean verifyRequest(Request request) {
+        return request.session() != null;
+    }
+
+    @Override
     protected final BackendResponse<Response> handle(HttpServletRequest req, Request request, HttpServletResponse resp) throws IOException {
-        if (request.session() == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return BackendResponse.badRequest();
-        }
         User user = sessions.getSessionOwner(request.session());
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
