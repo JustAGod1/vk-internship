@@ -8,6 +8,7 @@ import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,7 +49,7 @@ class AddFriendServletTest extends ServletBaseTest {
             }
             assertSuccess(response);
             addedFriends.add(friend);
-            var actualFriends = database.requestFriends(user).stream().map(UserName::user).toList();
+            var actualFriends = database.requestFriends(user).stream().map(UserName::user).collect(Collectors.toList());
 
             assertEquals(addedFriends, actualFriends);
         }

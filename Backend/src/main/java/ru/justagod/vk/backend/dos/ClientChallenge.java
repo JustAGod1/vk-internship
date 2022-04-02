@@ -8,7 +8,7 @@ public class ClientChallenge {
         int a = (int) (Math.random() * 300);
         int b = (int) (Math.random() * 300);
 
-        String challenge = "%d + %d =".formatted(a, b);
+        String challenge = String.format("%d + %d =", a, b);
         int answer = a + b;
 
         return new ClientChallenge(challenge, answer);

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -25,6 +26,7 @@ class SessionsManagerTest {
 
 
     private void mockInstant(Instant instant) {
+        Objects.requireNonNull(instant);
         if (clockMock != null) {
             clockMock.close();
         }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -127,7 +128,7 @@ public class SimpleIntegrationTests extends ServletBaseTest {
                     new AuthorizedRequest(session.session().value())
             );
 
-            List<User> actual = assertSuccess(response).users().stream().map(UserName::user).toList();
+            List<User> actual = assertSuccess(response).users().stream().map(UserName::user).collect(Collectors.toList());
             assertEquals(expected, actual);
         }
 

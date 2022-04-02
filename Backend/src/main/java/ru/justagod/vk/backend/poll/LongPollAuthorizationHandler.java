@@ -10,7 +10,7 @@ import ru.justagod.vk.data.User;
 import java.io.IOException;
 import java.security.SecureRandom;
 
-public class LongPollAuthorizationHandler extends LongPollConnectionHandlerBase<String, String>{
+public class LongPollAuthorizationHandler extends LongPollConnectionHandlerBase<String, String> {
 
     private static final ThreadLocal<SecureRandom> random = ThreadLocal.withInitial(SecureRandom::new);
 
@@ -67,12 +67,17 @@ public class LongPollAuthorizationHandler extends LongPollConnectionHandlerBase<
     @Override
     protected String handleRequest(String s) throws IOException {
         switch (state) {
-            case COOKIE_SENT -> handleCookie(s);
-            case COOKIE_RECEIVED -> handleSession(s);
-            default -> connection.closeChannel(BackendError.PROTOCOL_ERROR);
+            case COOKIE_SENT: {
+                handleCookie(s);
+                break;
+            }
+            case COOKIE_RECEIVED: {
+                handleSession(s);
+                break;
+            }
+            default:
+                connection.closeChannel(BackendError.PROTOCOL_ERROR);
         }
-
-
         return null;
     }
 }

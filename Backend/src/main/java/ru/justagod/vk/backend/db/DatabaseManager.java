@@ -37,7 +37,9 @@ public class DatabaseManager {
     }
 
     private boolean isTableExists(String name) {
-        return pool.mapStatement(s -> s.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='%s';".formatted(name)).next());
+        return pool.mapStatement(s -> s.executeQuery(
+                String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%s';", name)
+        ).next());
     }
 
     private void initializeTables() {
@@ -87,8 +89,10 @@ public class DatabaseManager {
     }
 
     public boolean addFriend(User user, User friend) {
-        @Language("SQLite") String sql = "INSERT OR IGNORE INTO %s (user, friend) VALUES (?, ?)"
-                .formatted(FRIENDS_TABLE);
+        @Language("SQLite") String sql = String.format(
+                "INSERT OR IGNORE INTO %s (user, friend) VALUES (?, ?)",
+                FRIENDS_TABLE
+        );
 
         return pool.mapPreparedStatement(sql, s -> {
             s.setString(1, user.id().toString());
@@ -99,8 +103,7 @@ public class DatabaseManager {
     }
 
     public boolean removeFriend(User user, User friend) {
-        @Language("SQLite") String sql = "DELETE FROM %s  WHERE user = ? AND friend = ?"
-                .formatted(FRIENDS_TABLE);
+        @Language("SQLite") String sql = String.format("DELETE FROM %s  WHERE user = ? AND friend = ?", FRIENDS_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
             s.setString(1, user.id().toString());
@@ -112,8 +115,7 @@ public class DatabaseManager {
     }
 
     public List<UserName> requestFriends(User user) {
-        String sql = "SELECT friend, username FROM %1$s INNER JOIN %2$s ON  %1$s.friend = %2$s.uuid WHERE %1$s.user = ? "
-                .formatted(FRIENDS_TABLE, USERS_TABLE);
+        String sql = String.format("SELECT friend, username FROM %1$s INNER JOIN %2$s ON  %1$s.friend = %2$s.uuid WHERE %1$s.user = ? ", FRIENDS_TABLE, USERS_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
             s.setString(1, user.id().toString());
@@ -132,8 +134,7 @@ public class DatabaseManager {
     }
 
     public void addMessage(Message message) {
-        @Language("SQLite") String sql = "INSERT INTO %s (sender_id, receiver_id, content, uuid, sent_at) VALUES (?, ?, ?, ?, ?)"
-                .formatted(CHAT_HISTORY_TABLE);
+        @Language("SQLite") String sql = String.format("INSERT INTO %s (sender_id, receiver_id, content, uuid, sent_at) VALUES (?, ?, ?, ?, ?)", CHAT_HISTORY_TABLE);
         pool.withPreparedStatement(sql, s -> {
             s.setString(1, message.sender().id().toString());
             s.setString(2, message.receiver().id().toString());
@@ -144,8 +145,7 @@ public class DatabaseManager {
     }
 
     public List<Message> readMessages(Instant before, User first, User second) {
-        @Language("SQLite") String sql = "SELECT uuid, sent_at, content, sender_id, receiver_id FROM %s WHERE sent_at <= ? AND ((receiver_id = ? AND sender_id = ?) OR (receiver_id = ? AND sender_id = ?)) ORDER BY sent_at DESC LIMIT 100"
-                .formatted(CHAT_HISTORY_TABLE);
+        @Language("SQLite") String sql = String.format("SELECT uuid, sent_at, content, sender_id, receiver_id FROM %s WHERE sent_at <= ? AND ((receiver_id = ? AND sender_id = ?) OR (receiver_id = ? AND sender_id = ?)) ORDER BY sent_at DESC LIMIT 100", CHAT_HISTORY_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
             List<Message> result = new ArrayList<>();
@@ -177,8 +177,7 @@ public class DatabaseManager {
     public User addUser(String passwordHash, String username) {
         User user = new User(UUID.randomUUID());
 
-        @Language("SQLite") String sql = "INSERT INTO %s (uuid, password_hash, username) VALUES (?, ?, ?)"
-                .formatted(USERS_TABLE);
+        @Language("SQLite") String sql = String.format("INSERT INTO %s (uuid, password_hash, username) VALUES (?, ?, ?)", USERS_TABLE);
 
         pool.withPreparedStatement(sql, s -> {
             s.setString(1, user.id().toString());
@@ -191,8 +190,7 @@ public class DatabaseManager {
 
     @Nullable
     public User findUser(String username) {
-        @Language("SQLite") String sql = "SELECT uuid FROM %s WHERE username = ? LIMIT 1"
-                .formatted(USERS_TABLE);
+        @Language("SQLite") String sql = String.format("SELECT uuid FROM %s WHERE username = ? LIMIT 1", USERS_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
             s.setString(1, username);
@@ -206,8 +204,7 @@ public class DatabaseManager {
 
     @Nullable
     public User findUser(String username, String passwordHash) {
-        @Language("SQLite") String sql = "SELECT uuid FROM %s WHERE password_hash = ? and username = ? LIMIT 1"
-                .formatted(USERS_TABLE);
+        @Language("SQLite") String sql = String.format("SELECT uuid FROM %s WHERE password_hash = ? and username = ? LIMIT 1", USERS_TABLE);
 
         return pool.mapPreparedStatement(sql, s -> {
             s.setString(1, passwordHash);
@@ -224,8 +221,7 @@ public class DatabaseManager {
     // if I want to implement proper behaviour I'll need to implement search engine lists or something
     // I think it's out of scope of this assignment
     public List<UserName> getUsers() {
-        @Language("SQLite") String sql = "SELECT uuid, username FROM %s"
-                .formatted(USERS_TABLE);
+        @Language("SQLite") String sql = String.format("SELECT uuid, username FROM %s", USERS_TABLE);
 
         return pool.mapStatement(s -> {
             List<UserName> result = new ArrayList<>();

@@ -37,7 +37,7 @@ public final class BackendError {
     public static String codeName(int code) {
         String name = codeNames.get(code);
         if (name == null) {
-            name = "UNKNOWN_ERROR(%d)".formatted(code);
+            name = String.format("UNKNOWN_ERROR(%d)", code);
         }
         return name;
     }

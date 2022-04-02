@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,7 +28,7 @@ class UsersServletTest extends ServletBaseTest {
                 .mapToObj((a) -> EnhancedRandom.randomString(random, random.nextInt(10)))
                 .map((name) -> new UserName(database.addUser("***", name), name))
                 .sorted(Comparator.comparing(UserName::username))
-                .toList();
+                .collect(Collectors.toList());
 
         HttpClient client = connect();
 

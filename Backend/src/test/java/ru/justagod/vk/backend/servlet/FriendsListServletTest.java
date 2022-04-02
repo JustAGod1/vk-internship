@@ -9,6 +9,7 @@ import ru.justagod.vk.network.Endpoint;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +40,7 @@ class FriendsListServletTest extends ServletBaseTest {
                 new AuthorizedRequest(session.value())
         );
 
-        var friendsResponse = assertSuccess(response).users().stream().map(UserName::user).toList();
+        var friendsResponse = assertSuccess(response).users().stream().map(UserName::user).collect(Collectors.toList());
 
         assertEquals(friends, friendsResponse);
 

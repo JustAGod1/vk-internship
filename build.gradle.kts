@@ -12,8 +12,8 @@ repositories {
 
 allprojects {
     tasks.withType<JavaCompile> {
-        targetCompatibility = "16"
-        sourceCompatibility = "16"
+        targetCompatibility = "11"
+        sourceCompatibility = "11"
     }
 }
 
