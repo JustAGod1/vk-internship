@@ -21,6 +21,10 @@ public class UsersServlet extends ServletBase<AuthorizedRequest, UsersListRespon
 
     @Override
     protected BackendResponse<UsersListResponse> handle(HttpServletRequest req, AuthorizedRequest request, HttpServletResponse resp) throws IOException {
+        if (request.session() == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return BackendResponse.badRequest();
+        }
         User user = sessions.getSessionOwner(request.session());
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);

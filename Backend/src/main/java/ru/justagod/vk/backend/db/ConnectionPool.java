@@ -116,6 +116,12 @@ public class ConnectionPool {
         return r;
     }
 
+    public void close() throws SQLException {
+        for (Connection connection : pool) {
+            connection.close();
+        }
+    }
+
     @FunctionalInterface
     public interface SQLConsumer<T> {
         void accept(T value) throws SQLException;

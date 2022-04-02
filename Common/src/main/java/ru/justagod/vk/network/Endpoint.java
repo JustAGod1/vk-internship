@@ -34,7 +34,9 @@ public class Endpoint<Request, Response> {
 
     public Request parseRequest(Gson gson, String payload) throws ParsingException {
         try {
-            return gson.fromJson(payload, requestClass);
+            Request result = gson.fromJson(payload, requestClass);
+            if (result == null && requestClass != Void.class) throw new ParsingException("null is not expected");
+            return result;
         } catch (JsonParseException e) {
             throw new ParsingException(e);
         }

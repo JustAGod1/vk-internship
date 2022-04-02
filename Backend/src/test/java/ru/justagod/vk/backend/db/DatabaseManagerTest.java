@@ -30,6 +30,7 @@ class DatabaseManagerTest {
         User user = manager.addUser("****", "ip");
 
         assertEquals(manager.findUser("ip"), user);
+        assertNull(manager.findUser("iP"));
         assertNull(manager.findUser("ipp"));
     }
 

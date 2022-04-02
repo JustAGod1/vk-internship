@@ -8,6 +8,7 @@ import ru.justagod.vk.data.User;
 import ru.justagod.vk.data.UserName;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -234,5 +235,9 @@ public class DatabaseManager {
 
             return result;
         });
+    }
+
+    public void close() throws SQLException {
+        pool.close();
     }
 }

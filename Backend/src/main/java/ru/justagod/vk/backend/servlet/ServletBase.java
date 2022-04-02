@@ -29,6 +29,7 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
     public ServletBase(Endpoint<Request, Response> endpoint, DatabaseManager database, DosProtection protection, SessionsManager sessions) {
         this(endpoint, database, protection, sessions, false);
     }
+
     public ServletBase(Endpoint<Request, Response> endpoint, DatabaseManager database, DosProtection protection, SessionsManager sessions, boolean skipProtection) {
         this.endpoint = endpoint;
         this.database = database;
@@ -69,6 +70,10 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
                 request = endpoint.parseRequest(Main.gson, contentString);
             } catch (Endpoint.ParsingException e) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getOutputStream().write(endpoint.writeResponse(
+                        Main.gson,
+                        BackendResponse.badRequest()
+                ).getBytes(StandardCharsets.UTF_8));
                 return;
             }
 
@@ -81,9 +86,9 @@ public abstract class ServletBase<Request, Response> extends HttpServlet {
             resp.setStatus(500);
             resp.getOutputStream().write(
                     endpoint.writeResponse(
-                                    Main.gson,
-                                    BackendResponse.error(new BackendError(BackendError.GENERIC_ERROR, e.toString()))
-                            ).getBytes(StandardCharsets.UTF_8)
+                            Main.gson,
+                            BackendResponse.error(new BackendError(BackendError.GENERIC_ERROR, e.toString()))
+                    ).getBytes(StandardCharsets.UTF_8)
             );
 
         }
