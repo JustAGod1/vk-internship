@@ -170,7 +170,7 @@ class LongPollServerTest {
         LongPollTestConnection sergeyConnection = authorize(sergey);
         authorize(sergey);
 
-        assertThrows(SocketException.class, () -> checkMessagesReceiving(ivan, ivanConnection, sergey, sergeyConnection));
+        assertThrows(Throwable.class, () -> checkMessagesReceiving(ivan, ivanConnection, sergey, sergeyConnection));
     }
 
     private void checkMessagesReceiving(User ivan,
