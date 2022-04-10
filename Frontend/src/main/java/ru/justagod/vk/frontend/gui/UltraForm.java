@@ -79,6 +79,8 @@ public class UltraForm extends JFrame {
         chatButton.addActionListener(this::openChat);
         sendButton.addActionListener(this::sendMessage);
 
+        refreshButton.addActionListener(e -> requestMessages());
+
         Thread thread = new Thread(this::runLongPoll);
         thread.setDaemon(true);
         thread.start();
@@ -224,11 +226,10 @@ public class UltraForm extends JFrame {
 
     private void addMessage(Message message) {
         if (session == null) return;
-        if (message.receiver() != session.user()) {
+        if (!message.receiver().equals(session.user())) {
             List<Message> l = messagesBuffer.computeIfAbsent(message.receiver(), a -> new ArrayList<>());
             addTo(l, message);
-        }
-        if (message.sender() != session.user()) {
+        } else {
             List<Message> r = messagesBuffer.computeIfAbsent(message.sender(), a -> new ArrayList<>());
             addTo(r, message);
         }
